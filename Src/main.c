@@ -99,11 +99,6 @@ int main(void)
   MX_I2C1_Init();
   MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
-	//	HAL_UART_Receive_DMA(&huart1,rx_buffer,1);
-	HAL_TIM_PWM_Start((TIM_HandleTypeDef *)&htim2, (uint32_t) TIM_CHANNEL_2);
-	
-	TIM3->CCMR2=50;		//Pulse值 与占空比有关 占空比=Pulse/Counter Period
-	
 	// Init lcd using one of the stm32HAL i2c typedefs
   if (ssd1306_Init(&hi2c1) != 0) {
     Error_Handler();
@@ -113,15 +108,21 @@ int main(void)
   ssd1306_Fill(Black);
 //  OLED_Clear(&hi2c1);
   ssd1306_UpdateScreen(&hi2c1);
+  
+  //	HAL_UART_Receive_DMA(&huart1,rx_buffer,1);
+	HAL_TIM_PWM_Start((TIM_HandleTypeDef *)&htim2, (uint32_t) TIM_CHANNEL_2);
+	
+	TIM3->CCMR2=50;		//Pulse值 与占空比有关 占空比=Pulse/Counter Period
+	
 
-  HAL_Delay(1000);
+//  HAL_Delay(1000);
   
     // Write data to local screenbuffer
   ssd1306_WriteString(0,0,"ssd1306",Font_11x18,White);
 
   ssd1306_WriteString(10,18,"Li_Zii",Font_7x10,White);
   
-  ssd1306_ShowNum(20,36,500,3,Font_7x10,White);
+  ssd1306_ShowNum(20,30,500,3,Font_7x10,White);
   // Draw rectangle on screen
   for (uint8_t i=0; i<28; i++) {
       for (uint8_t j=0; j<64; j++) {
@@ -129,7 +130,7 @@ int main(void)
       }
   }
   
-  ssd1306_ShowCHinese(20,44,0,White);//中
+  ssd1306_ShowCHinese(50,30,0,White);//中
 
   // Copy all data from local screenbuffer to the screen
   ssd1306_UpdateScreen(&hi2c1);
