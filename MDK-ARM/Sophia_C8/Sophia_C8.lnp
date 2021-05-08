@@ -2,6 +2,8 @@
 "sophia_c8\startup_stm32f103xb.o"
 "sophia_c8\pid.o"
 "sophia_c8\ps2.o"
+"sophia_c8\fonts.o"
+"sophia_c8\ssd1306.o"
 "sophia_c8\main.o"
 "sophia_c8\gpio.o"
 "sophia_c8\dma.o"
