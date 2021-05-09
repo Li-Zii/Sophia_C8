@@ -64,13 +64,15 @@ char ssd1306_WriteChar(uint8_t x,uint8_t y,char ch, FontDef Font, SSD1306_COLOR 
 char ssd1306_WriteString(uint8_t x,uint8_t y,char* str, FontDef Font, SSD1306_COLOR color);
 void ssd1306_SetCursor(uint8_t x, uint8_t y);
 void ssd1306_InvertColors(void);
-void fill_picture(I2C_HandleTypeDef *hi2c,unsigned char fill_Data);
+//void fill_picture(I2C_HandleTypeDef *hi2c,unsigned char fill_Data);
 void ssd1306_Display_On(I2C_HandleTypeDef *hi2c);
 void ssd1306_Display_Off(I2C_HandleTypeDef *hi2c);
 void ssd1306_Clear(I2C_HandleTypeDef *hi2c);
 void ssd1306_On(I2C_HandleTypeDef *hi2c);
+char ssd1306_Clear_Area(uint8_t x,uint8_t y,uint8_t x1,uint8_t y1, SSD1306_COLOR color);
 void ssd1306_ShowCHinese(uint8_t x,uint8_t y,uint8_t no,uint8_t color);
 void ssd1306_ShowNum(uint8_t x,uint8_t y,uint32_t num,uint8_t len,FontDef Font, SSD1306_COLOR color);
+void ssd1306_ShowPiontNum(uint8_t x,uint8_t y,double num,uint8_t len,FontDef Font, SSD1306_COLOR color);
 
 
 #endif  // _SSD1306_H

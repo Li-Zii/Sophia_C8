@@ -32,6 +32,7 @@
 #include "ps2.h"
 #include "fonts.h"
 #include "ssd1306.h"
+#include "mpu6050.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -51,7 +52,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+MPU6050_t MPU6050;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -99,41 +100,53 @@ int main(void)
   MX_I2C1_Init();
   MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
-	// Init lcd using one of the stm32HAL i2c typedefs
-  if (ssd1306_Init(&hi2c1) != 0) {
-    Error_Handler();
-  }
-  HAL_Delay(1000);
-
-  ssd1306_Fill(Black);
-//  OLED_Clear(&hi2c1);
-  ssd1306_UpdateScreen(&hi2c1);
   
-  //	HAL_UART_Receive_DMA(&huart1,rx_buffer,1);
-	HAL_TIM_PWM_Start((TIM_HandleTypeDef *)&htim2, (uint32_t) TIM_CHANNEL_2);
-	
-	TIM3->CCMR2=50;		//Pulse值 与占空比有关 占空比=Pulse/Counter Period
-	
+	HAL_GPIO_WritePin(GPIOB,GPIO_PIN_1,GPIO_PIN_RESET);
+  
+	if(SD_MPU6050_Init(&hi2c2,&MPU6050,SD_MPU6050_Device_0,SD_MPU6050_Accelerometer_2G,SD_MPU6050_Gyroscope_2000s) !=SD_MPU6050_Result_Ok)
+	{
+		Error_Handler();
+	}
+	HAL_Delay(500);
 
-//  HAL_Delay(1000);
+	if (ssd1306_Init(&hi2c1) != 0) 
+	{
+		Error_Handler();
+	}
+	HAL_Delay(1000);
+
+	ssd1306_Fill(Black);
+//	OLED_Clear(&hi2c1);
+	ssd1306_UpdateScreen(&hi2c1);
+
+	HAL_Delay(1000);
   
     // Write data to local screenbuffer
-  ssd1306_WriteString(0,0,"ssd1306",Font_11x18,White);
+	ssd1306_WriteString(17,0,"Sophia",Font_11x18,White);
 
-  ssd1306_WriteString(10,18,"Li_Zii",Font_7x10,White);
+	ssd1306_WriteString(29,20,"Li_Zii",Font_7x10,White);
   
-  ssd1306_ShowNum(20,30,500,3,Font_7x10,White);
   // Draw rectangle on screen
-  for (uint8_t i=0; i<28; i++) {
-      for (uint8_t j=0; j<64; j++) {
-          ssd1306_DrawPixel(100+i,0+j,White);
-      }
-  }
-  
-  ssd1306_ShowCHinese(50,30,0,White);//中
+	for (uint8_t i=0; i<28; i++) {
+		for (uint8_t j=0; j<64; j++) {
+			ssd1306_DrawPixel(100+i,0+j,White);
+		}
+	}
 
   // Copy all data from local screenbuffer to the screen
-  ssd1306_UpdateScreen(&hi2c1);
+	ssd1306_UpdateScreen(&hi2c1);
+	HAL_Delay(2000);
+
+	
+	ssd1306_Fill(Black);
+	
+	ssd1306_WriteString(10,25,"Angle_x:",Font_7x10,White);
+	ssd1306_WriteString(10,SSD1306_HEIGHT-22,"Angle_y:",Font_7x10,White);
+	
+	ssd1306_UpdateScreen(&hi2c1);//清屏，准备进入主界面
+	
+	ssd1306_WriteString(31,0,"Sophia",Font_11x18,White);
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -143,8 +156,31 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		printf("hello world\r\n");
-		HAL_Delay(1000);
+	  MPU6050_Read_All(&hi2c2,&MPU6050);
+	  
+	  double g_x = MPU6050.Gx;
+	  double g_y = MPU6050.Gy;
+	  double g_z = MPU6050.Gz;
+	  
+	  double a_x = MPU6050.Ax;
+	  double a_y = MPU6050.Ay;
+	  double a_z = MPU6050.Az;
+	
+	  double angle_x = MPU6050.KalmanAngleX;
+	  double angle_y = MPU6050.KalmanAngleY;
+	  
+	  ssd1306_Clear_Area(68,25,100,10,Black);
+	  ssd1306_Clear_Area(68,SSD1306_HEIGHT-22,100,10,Black);
+	  ssd1306_ShowPiontNum(68,25,angle_x,4,Font_7x10,White);
+	  ssd1306_ShowPiontNum(68,SSD1306_HEIGHT-22,angle_y,4,Font_7x10,White);
+	  
+	  printf("g_x:%f	g_y:%f	g_z:%f\r\n",g_x,g_y,g_z);
+	  printf("a_x:%f	a_y:%f	a_z:%f\r\n",a_x,a_y,a_z);
+	  printf("angle_x:%f	angle_y:%f\r\n",angle_x,angle_y);
+	  printf("------------------------\r\n");
+	  
+	  ssd1306_UpdateScreen(&hi2c1);
+	  
   }
   /* USER CODE END 3 */
 }

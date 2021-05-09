@@ -12,6 +12,7 @@
 "sophia_c8\usart.o"
 "sophia_c8\stm32f1xx_it.o"
 "sophia_c8\stm32f1xx_hal_msp.o"
+"sophia_c8\mpu6050.o"
 "sophia_c8\stm32f1xx_hal_gpio_ex.o"
 "sophia_c8\stm32f1xx_hal_i2c.o"
 "sophia_c8\stm32f1xx_hal.o"

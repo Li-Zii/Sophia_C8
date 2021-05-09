@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
   * @author  Huang.
-  * @version V3.0
-  * @date    2021-5-08
+  * @version V3.1
+  * @date    2021-5-9
   * @brief   1.3’OLED配置C文件
   ******************************************************************************
   * @describe:引用：https://github.com/4ilo/ssd1306-stm32HAL
@@ -12,6 +12,7 @@
   *				4、增加了数字和中文的显示函数，中文需要fonts.c中的字库支持
   *				5、修复了一些原生的bug
   *				6、待增加BMP图片显示
+  *				7、增加了区域清屏
   *
   ******************************************************************************
   */
@@ -116,23 +117,23 @@ uint8_t ssd1306_Init(I2C_HandleTypeDef *hi2c)
     return 0;
 }
 
-//
-//fill_Picture
-//
-void fill_picture(I2C_HandleTypeDef *hi2c,unsigned char fill_Data)
-{
-	unsigned char m,n;
-	for(m=0;m<8;m++)
-	{
-		ssd1306_WriteCommand(hi2c,0xB0+m);		//page0-page1
-		ssd1306_WriteCommand(hi2c,0x02);		//low column start address
-		ssd1306_WriteCommand(hi2c,0x10);		//high column start address
-		for(n=0;n<SSD1306_WIDTH;n++)
-			{
-				ssd1306_WriteData(hi2c,fill_Data);
-			}
-	}
-}
+////
+////fill_Picture
+////
+//void fill_picture(I2C_HandleTypeDef *hi2c,unsigned char fill_Data)
+//{
+//	unsigned char m,n;
+//	for(m=0;m<8;m++)
+//	{
+//		ssd1306_WriteCommand(hi2c,0xB0+m);		//page0-page1
+//		ssd1306_WriteCommand(hi2c,0x02);		//low column start address
+//		ssd1306_WriteCommand(hi2c,0x10);		//high column start address
+//		for(n=0;n<SSD1306_WIDTH;n++)
+//			{
+//				ssd1306_WriteData(hi2c,fill_Data);
+//			}
+//	}
+//}
 
 //
 //开启OLED显示 
@@ -283,6 +284,47 @@ char ssd1306_WriteChar(uint8_t x,uint8_t y,char ch, FontDef Font, SSD1306_COLOR 
     return ch;
 }
 
+//
+//  向指定区域填充指定颜色
+//  x,y	=> 开始点坐标
+//	x1,y1	=> 擦除区域
+//  color   => Black or White
+//
+char ssd1306_Clear_Area(uint8_t x,uint8_t y,uint8_t x1,uint8_t y1, SSD1306_COLOR color)
+{
+    uint32_t i,j;
+	
+	ssd1306_SetCursor(x,y);
+	
+    // Check remaining space on current line
+	if (SSD1306_WIDTH <= SSD1306.CurrentX ||
+        SSD1306_HEIGHT <= SSD1306.CurrentY)
+    {
+        // Not enough space on current line
+        return 0;
+    }
+    if (SSD1306_WIDTH <= (SSD1306.CurrentX + x1))
+	{
+		x1 = SSD1306_WIDTH - x;
+	}
+    if(SSD1306_HEIGHT <= (SSD1306.CurrentY + y1))
+    {
+        y1 = SSD1306_HEIGHT - y;
+    }
+
+    // Translate font to screenbuffer
+    for (i = 0; i < y1; i++)
+    {
+        for (j = 0; j < x1; j++)
+        {
+			ssd1306_DrawPixel(SSD1306.CurrentX + j, (SSD1306.CurrentY + i), (SSD1306_COLOR) color);
+        }
+    }
+	return 1;
+
+}
+
+
 //m^n函数
 uint32_t oled_pow(uint8_t m,uint8_t n)
 {
@@ -356,6 +398,68 @@ void ssd1306_ShowCHinese(uint8_t x,uint8_t y,uint8_t no,uint8_t color)
      }					
 }
 
+//获取数字num的长度 函数
+//num:数值(0~4294967295); 
+
+uint8_t GetNumDig(uint32_t num)
+{
+ uint8_t len=1;
+ for(len=1;len<12;len++)
+ {
+  if(num<10) return len;
+  num=num/10;
+ }
+ return len;
+}
+
+//显示小数,高位为0,则不显示
+//x,y :起点坐标	 
+//len :小数点后的位数
+//size:字体大小
+//num:数值;	 
+void ssd1306_ShowPiontNum(uint8_t x,uint8_t y,double num,uint8_t len,FontDef Font, SSD1306_COLOR color)
+{          
+	uint8_t t,k,temp,enshow=0;
+	uint16_t len1;   //整数部分长度
+	uint32_t num1,num2;
+	double Num_R;
+	Num_R=num;
+	num1=num;//取整数部分
+	len1=GetNumDig(num1);  //获得num的整数位数
+	num2=(Num_R-num1)*oled_pow(10,len); // 10的len次方  //小数部分转长度为len的整数
+
+	if(num < 0)
+	{
+    num = -num;
+		ssd1306_WriteChar(x,y,'-',Font,color);  //显示负号
+	}
+	else
+		ssd1306_WriteChar(x,y,' ',Font,color);  
+
+	for(t=0;t<len1;t++)             //显示整数部分
+	{
+		temp=(num1/oled_pow(10,len1-t-1))%10;
+		if(enshow==0&&t<(len1-1))
+		{
+			if(temp==0)
+		 {
+				ssd1306_WriteChar(x+Font.FontWidth*(t+1),y,' ',Font,color);//便于数字的对齐显示，可以去掉，因为数字长度len1确定，不会出现首位为0.若是确定的位数，则可以直接给len1赋值
+				continue;   //进入下一个循环
+		 }
+		 else 
+			 enshow=1; 	 
+		}
+		 ssd1306_WriteChar(x+Font.FontWidth*(t+1),y,temp+'0',Font,color); 
+	}
+
+	ssd1306_WriteChar(x+Font.FontWidth*(len1+1),y,'.',Font,color);  //显示小数点
+	for(k=0;k<len;k++)             //显示小数部分
+	{
+	temp=(num2/oled_pow(10,len-k-1))%10;
+	ssd1306_WriteChar(x+Font.FontWidth*(k+len1+2),y,temp+'0',Font,color); 
+	}
+}
+
 ///***********功能描述：显示显示BMP图片128×64起始点坐标(x,y),x的范围0～127，y为页的范围0～64*****************/
 //void OLED_DrawBMP(unsigned char x0, unsigned char y0,unsigned char x1, unsigned char y1,unsigned char BMP[])
 //{ 	
@@ -416,3 +520,5 @@ void ssd1306_SetCursor(uint8_t x, uint8_t y)
     SSD1306.CurrentX = x;
     SSD1306.CurrentY = y;
 }
+
+
