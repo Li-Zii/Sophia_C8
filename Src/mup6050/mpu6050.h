@@ -176,7 +176,6 @@ typedef struct {
 } Kalman_t;
 
 
-uint8_t MPU6050_Init(I2C_HandleTypeDef *I2Cx);
 
 void MPU6050_Read_Accel(I2C_HandleTypeDef *I2Cx, MPU6050_t *DataStruct);
 
@@ -304,7 +303,7 @@ MPU6050_Result MPU6050_Write_Byte(I2C_HandleTypeDef* I2Cx,uint8_t registers,uint
  *            - SD_MPU6050_Result_t: Everything OK
  *            - Other member: in other cases
  */
-MPU6050_Result SD_MPU6050_Init(I2C_HandleTypeDef* I2Cx,MPU6050_t* DataStruct, SD_MPU6050_Device DeviceNumber, SD_MPU6050_Accelerometer AccelerometerSensitivity, SD_MPU6050_Gyroscope GyroscopeSensitivity);
+MPU6050_Result MPU6050_Init(I2C_HandleTypeDef* I2Cx,MPU6050_t* DataStruct, SD_MPU6050_Device DeviceNumber, SD_MPU6050_Accelerometer AccelerometerSensitivity, SD_MPU6050_Gyroscope GyroscopeSensitivity);
 
 /**
  * @brief  Sets gyroscope sensitivity

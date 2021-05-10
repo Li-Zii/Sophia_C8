@@ -66,7 +66,7 @@ MPU6050_Result MPU6050_Write_Byte(I2C_HandleTypeDef* I2Cx,uint8_t registers,uint
 	return SD_MPU6050_Result_Ok;
 }
 
-MPU6050_Result SD_MPU6050_Init(I2C_HandleTypeDef* I2Cx,MPU6050_t* DataStruct, SD_MPU6050_Device DeviceNumber, SD_MPU6050_Accelerometer AccelerometerSensitivity, SD_MPU6050_Gyroscope GyroscopeSensitivity)
+MPU6050_Result MPU6050_Init(I2C_HandleTypeDef* I2Cx,MPU6050_t* DataStruct, SD_MPU6050_Device DeviceNumber, SD_MPU6050_Accelerometer AccelerometerSensitivity, SD_MPU6050_Gyroscope GyroscopeSensitivity)
 {
 	uint8_t WHO_AM_I = (uint8_t)MPU6050_WHO_AM_I;
 	uint8_t temp;

@@ -101,9 +101,9 @@ int main(void)
   MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
   
-	HAL_GPIO_WritePin(GPIOB,GPIO_PIN_1,GPIO_PIN_RESET);
+//	HAL_GPIO_WritePin(GPIOB,GPIO_PIN_1,GPIO_PIN_RESET);
   
-	if(SD_MPU6050_Init(&hi2c2,&MPU6050,SD_MPU6050_Device_0,SD_MPU6050_Accelerometer_2G,SD_MPU6050_Gyroscope_2000s) !=SD_MPU6050_Result_Ok)
+	if(MPU6050_Init(&hi2c2,&MPU6050,SD_MPU6050_Device_0,SD_MPU6050_Accelerometer_2G,SD_MPU6050_Gyroscope_2000s) !=SD_MPU6050_Result_Ok)
 	{
 		Error_Handler();
 	}
@@ -158,13 +158,13 @@ int main(void)
     /* USER CODE BEGIN 3 */
 	  MPU6050_Read_All(&hi2c2,&MPU6050);
 	  
-	  double g_x = MPU6050.Gx;
-	  double g_y = MPU6050.Gy;
-	  double g_z = MPU6050.Gz;
-	  
-	  double a_x = MPU6050.Ax;
-	  double a_y = MPU6050.Ay;
-	  double a_z = MPU6050.Az;
+//	  double g_x = MPU6050.Gx;
+//	  double g_y = MPU6050.Gy;
+//	  double g_z = MPU6050.Gz;
+//	  
+//	  double a_x = MPU6050.Ax;
+//	  double a_y = MPU6050.Ay;
+//	  double a_z = MPU6050.Az;
 	
 	  double angle_x = MPU6050.KalmanAngleX;
 	  double angle_y = MPU6050.KalmanAngleY;
@@ -174,10 +174,10 @@ int main(void)
 	  ssd1306_ShowPiontNum(68,25,angle_x,4,Font_7x10,White);
 	  ssd1306_ShowPiontNum(68,SSD1306_HEIGHT-22,angle_y,4,Font_7x10,White);
 	  
-	  printf("g_x:%f	g_y:%f	g_z:%f\r\n",g_x,g_y,g_z);
-	  printf("a_x:%f	a_y:%f	a_z:%f\r\n",a_x,a_y,a_z);
-	  printf("angle_x:%f	angle_y:%f\r\n",angle_x,angle_y);
-	  printf("------------------------\r\n");
+//	  printf("g_x:%f	g_y:%f	g_z:%f\r\n",g_x,g_y,g_z);
+//	  printf("a_x:%f	a_y:%f	a_z:%f\r\n",a_x,a_y,a_z);
+//	  printf("angle_x:%f	angle_y:%f\r\n",angle_x,angle_y);
+//	  printf("------------------------\r\n");
 	  
 	  ssd1306_UpdateScreen(&hi2c1);
 	  
@@ -253,7 +253,7 @@ void Error_Handler(void)
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
-	printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+	printf("Wrong parameters value: file %s on line %d\r\n", file, line);
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
